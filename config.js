@@ -8,24 +8,6 @@ app.addMenuItem({cName:"t&est", cParent:"Sales Over&Drive", cExec:"getCustomFiel
 
 
 // Functions
-function printObject(o) {
-    var out = '';
-    for (var p in o) {
-        out += p + "\n";
-    //     // out += p + ': ' + o[p] + '\n';
-    }
-    // console.println('fgcolor ' + o.fgColor);
-    // console.println('bgColor ' + o.bgColor);
-    // console.println('fillColor ' + o.fillColor);
-    // console.println('borderColor ' + o.borderColor);
-    // console.println('strokeColor ' + o.strokeColor);
-    // console.println('borderStyle ' + o.borderStyle);
-    // console.println('borderwidth ' + o.borderwidth);
-    // console.println('lineWidth ' + o.lineWidth);
-    // console.println('style ' + o.style);
-
-}
-
 
 function clearFieldSampleValues(){
     var numFields = this.numFields;
@@ -49,12 +31,7 @@ function buildCheckboxField(config){
     return config;
 }
 
-function populateOverdriveFields() {
-
-    var customFieldPrefix = getCustomFieldPrefix();
-    if (customFieldPrefix === false){
-        return;
-    }
+function insertDealAndCustomerFields(){
 
     for ( var i=0; i < this.numPages; i++) {
         
@@ -87,177 +64,134 @@ function populateOverdriveFields() {
         z.textSize=0;
         z.readonly = false;
         z.textFont = "Helvetica-Bold";
-
     }
 
+}
 
-    var jsonFilename = "/C/Users/dynaka/Documents/Lasert~1/availableFields.json";
+function populateOverdriveFields() {
 
-    var rStream = util.readFileIntoStream(jsonFilename);
-    var cFile = util.stringFromStream(rStream);
-    var overDriveCodes = eval(cFile);
+    var fieldName, fieldObj = {};
+    var numFields, textFieldIndex;
 
-    var dialog1 = {
-    	fieldName:"",
-        initialize: function(dialog) {
-            dialog.load({
-                "fldn": this.fieldName
-            });
-        },
-        commit: function(dialog) { // called when OK pressed
-            var results = dialog.store();
-    		
-    		this.tooltip = results[ "ttip"];
-    		this.displayValue = results["dval"];
-            this.defaultValue = results["fval"];
-          
-        },
-        description: {
-            name: "Custom Field Editor: ",
-            align_children: "align_left",
-            width: 350,
-            height: 200,
-            elements: [{
-                    type: "cluster",
-                    name: "Custom Field Configuration",
-                    align_children: "align_left",
-                    elements: [
-    					{
-                            type: "static_text",
-                            name: "fldn: ",
-                            char_width: 25,
-                            item_id: "fldn"
-                        },
-    					{
-                            type: "view",
-                            align_children: "align_row",
-                            elements: [{
-                                    type: "static_text",
-                                    name: "Tooltip:           "
-                                },
-                                {
-                                    item_id: "ttip",
-                                    type: "edit_text",
-                                    alignment: "align_fill",
-                                    width: 300,
-                                    height: 20
-                                }
-                            ]
-                        },
-                        {
-                            type: "view",
-                            align_children: "align_row",
-                            elements: [{
-                                    type: "static_text",
-                                    name: "Display Value: "
-                                },
-                                {
-                                    item_id: "dval",
-                                    type: "edit_text",
-                                    alignment: "align_fill",
-                                    width: 300,
-                                    height: 20
-                                }
-                            ]
-                        },
-                        {
-                            type: "view",
-                            align_children: "align_row",
-                            elements: [{
-                                    type: "static_text",
-                                    name: "Default Value: "
-                                },
-                                {
-                                    item_id: "fval",
-                                    type: "edit_text",
-                                    alignment: "align_fill",
-                                    width: 300,
-                                    height: 20
-                                }
-                            ]
-                        },
-                        {
-                            alignment: "align_right",
-                            type: "ok_cancel",
-                            ok_name: "Ok",
-                            cancel_name: "Cancel"
-                        }
-                    ]
-                }
-            ]
-        }
-    };    
+    var jsonFilename   = "/C/Users/dynaka/Documents/Lasert~1/availableFields.json";
+    var jsonStream     = util.readFileIntoStream(jsonFilename);
+    var jsonString     = util.stringFromStream(jsonStream);
+    var overDriveCodes = eval(jsonString);
+
+    var customFieldPrefix = getCustomFieldPrefix();
+    textFieldIndex = 0;
+
+    if (customFieldPrefix === false){
+        return;
+    }
+
+    insertDealAndCustomerFields();
+
+    numFields = this.numFields;
+
     
-    function getOverDrive(needle, haystack){
-        for (var i = 0 ; i < haystack.length; i++) {
-            if (haystack[i].name === needle.name){
-                if ((typeof(haystack.defaultValue) === 'undefined')){
-                    haystack.defaultValue = null;
-                }
-                return haystack[i];
+    for (var i = 0; i < numFields; i++) {
+
+console.println("index = " + i + "numfield = " + this.numFields);
+
+        fieldName = this.getNthFieldName(i);
+        fieldObj = this.getField(this.getNthFieldName(i));
+        overDriveCode = getOverDriveCodes(fieldObj, overDriveCodes);
+
+        if (overDriveCode.tooltip === null) {
+
+            switch(fieldObj.type){
+                case "text":
+                    textFieldIndex += 1;
+                    textFieldIndex = buildCustomTextField(fieldName, fieldObj, customFieldPrefix, textFieldIndex);
+                    break;
+                case "checkbox":
+                    fieldObj = buildCheckboxField(fieldObj);
+                break;
             }
-        }   
-        return { name: needle,
-                 tooltip: null,
-                 value: null, 
-                 defaultValue: null
-        };
+
+        } else {
+
+            if (typeof(overDriveCode.value) != 'undefined'){
+                if (fieldObj.value != overDriveCode.value){
+                    if (fieldObj.value == ''){
+                        fieldObj.value = overDriveCode.value;
+                    }
+                } else {
+                    fieldObj.value = overDriveCode.value;                
+                }
+            }
+
+            if (typeof(overDriveCode.tooltip) != 'undefined'){
+                if (fieldObj.userName != overDriveCode.tooltip){
+                    if (fieldObj.userName == ''){
+                        fieldObj.userName = overDriveCode.tooltip;
+                    }
+                } else {
+                    fieldObj.userName = overDriveCode.tooltip;
+                }
+            }
+
+            if (typeof(overDriveCode.defaultValue) != 'undefined'){
+                if (fieldObj.defaultValue != overDriveCode.defaultValue){
+                    if (fieldObj.defaultValue == ''){
+                        fieldObj.defaultValue = overDriveCode.defaultvalue;
+                    }
+                } else {
+                    fieldObj.defaultValue = overDriveCode.defaultValue;
+                }            
+            }
+
+        }
     }
+
+}
+
+function buildCustomTextField(fieldName, fieldObj, customFieldPrefix, textFieldIndex){
+    // open a dialog to get values
+    // you cannot rename a field so
+    // build a new one from the ashes of the existing field
+    // delete the existing field
+    // note that the dialog has OK - DELETE buttons
+    // return textFieldIndex, which is deincremented by on on cancel
     
-    var fieldName, fieldObj = {}, msg;
-    var numFields = this.numFields;
+    var dialog = getCustomFieldDialog();
+    dialog.fieldName    = fieldName;
+    dialog.tooltip      = fieldObj.userName;
+    dialog.displayValue = fieldObj.value;
+    dialog.defaultValue = fieldObj.defaultValue;
+    if ("ok" == app.execDialog(dialog)) {
 
- for (var i = 0; i < numFields; i++) {
+        var fieldRectangle = this.getField(fieldName).rect; 
+        var newFieldName   = customFieldPrefix + '_text_' + textFieldIndex;
 
-     fieldName = this.getNthFieldName(i);
-     fieldObj = this.getField(this.getNthFieldName(i));
-     overDriveCode = getOverDrive(fieldObj, overDriveCodes);
+        var newCustomField = this.addField(newFieldName, "text", 0, fieldRectangle);
 
-     if (overDriveCode.tooltip === null) {
+        if (dialog.displayValue == '') {
+            newCustomField.value = "Needs Attention";
+        } else {
+            newCustomField.value = dialog.displayValue;
+        }
 
-         if (fieldObj == 'text') {
-             dialog1.fieldName = fieldName;
-             if ("ok" == app.execDialog(dialog1)) {
+        if (dialog.tooltip == '') {
+            newCustomField.userName = "Needs Attention";
+        } else {
+            newCustomField.userName = dialog.tooltip;
+        }
 
-                 if (dialog1.displayValue == '') {
-                     fieldObj.value = "Needs Attention";
-                 } else {
-                     fieldObj.value = dialog1.displayValue;
-                 }
-                 if (dialog1.tooltip == '') {
-                     fieldObj.userName = "Needs Attention";
-                 } else {
-                     fieldObj.userName = dialog1.tooltip;
-                 }
-                 if (dialog1.defaultValue != '') {
-                     fieldObj.devaultValue = dialog1.defaultValue;
-                 }
+        if (dialog.defaultValue != '') {
+            newCustomField.defaultValue = dialog.defaultValue;
+        }
 
-             } else {
-                 fieldObj.value = "Needs Attention";
-                 fieldObj.userName = "Needs Attention";
-             }
-         } else {
-             fieldObj.value = overDriveCode.value;
-             fieldObj.userName = overDriveCode.tooltip;
-             fieldObj.defaultValue = overDriveCode.defaultValue;
-         }
+        newCustomField.rotation = 0; 
+        newCustomField.textSize=0;
+        newCustomField.readonly = false;
+        newCustomField.textFont = "Helvetica-Bold";
 
-         if (fieldObj.type == 'checkbox') {
-             fieldObj = buildCheckboxField(fieldObj);
-         }
-     } else {
-         fieldObj.value = overDriveCode.value;
-         fieldObj.userName = overDriveCode.tooltip;
-         fieldObj.defaultValue = overDriveCode.defaultValue;
-     }
- }
+    } else {
+        textFieldIndex -= 1;
+    }
 
-    // app.alert({
-    //     cMsg: "Now wasn't that easy?" + " " + numFields + " fields updated.",
-    //     cTitle: "Overdrive Tools",
-    //     nIcon: 2,
-    //     nType: 2
-    // });
-
+    this.removeField(fieldName);
+    return textFieldIndex;
 }

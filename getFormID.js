@@ -1,8 +1,6 @@
 var getFormIDDialog = {
     formID: "", 
     initialize: function(dialog) { 
-    	console.println(txtGetFormID.customIDPrompt);
-
     	var comment = dialog.store()["dcom"];
         comment = txtGetFormID.comment;
        	var customIDPrompt = dialog.store()["pcom"];
@@ -27,7 +25,6 @@ var getFormIDDialog = {
         comment = txtGetFormID.comment;
        	var customIDPrompt = dialog.store()["pcom"];
         customIDPrompt = txtGetFormID.customIDPrompt;
-        console.println('new formid ' + formID);
 		dialog.load(
             {
                 "fnum": formID,
@@ -96,11 +93,9 @@ function getCustomFieldPrefix(){
 
     var formName = this.documentFileName;
     var formID   = getFormIDFromFileName(formName);
-    console.println('from filename ' + formID);  
 
 	getFormIDDialog.formID = formID; 
     if( "ok" == app.execDialog(getFormIDDialog)) { 
-    	    console.println("from dialog " + getFormIDDialog.formID);  
 		return getFormIDDialog.formID;
     } else {
     	return false;
