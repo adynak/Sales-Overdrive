@@ -3,7 +3,7 @@ app.addSubMenu({ cName: "Sales Over&Drive", cParent: "Help", nPos: 99 })
 app.addMenuItem({cName:"&JS Ref", cParent:"View", cExec:"app.openDoc('/C/Users/dynaka/Documents/Laser Tools/js_api_reference.pdf');" });
 app.addMenuItem({cName:"Update &Form Fields", cParent:"Sales Over&Drive", cExec:"populateOverdriveFields();" });
 app.addMenuItem({cName:"&Clear Test Values", cParent:"Sales Over&Drive", cExec:"clearFieldSampleValues();" });
-app.addMenuItem({cName:"t&est", cParent:"Sales Over&Drive", cExec:"getCustomFieldPrefix();" });
+app.addMenuItem({cName:"t&est", cParent:"Sales Over&Drive", cExec:"renumberCustomFields();" });
 
 
 
@@ -15,7 +15,9 @@ function clearFieldSampleValues(){
 
     for (var i = 0; i < numFields; i++) {
         fieldObj = this.getField(this.getNthFieldName(i));
-        fieldObj.value = '';
+        if (fieldObj.defaultValue == ''){
+            fieldObj.value = '';
+        }
     }
 
 }
@@ -71,7 +73,8 @@ function insertDealAndCustomerFields(){
 function populateOverdriveFields() {
 
     var fieldName, fieldObj = {};
-    var numFields, textFieldIndex;
+    var numFields;
+    var fieldNameArray;
 
     var jsonFilename   = "/C/Users/dynaka/Documents/Lasert~1/availableFields.json";
     var jsonStream     = util.readFileIntoStream(jsonFilename);
@@ -79,31 +82,57 @@ function populateOverdriveFields() {
     var overDriveCodes = eval(jsonString);
 
     var customFieldPrefix = getCustomFieldPrefix();
-    textFieldIndex = 0;
 
     if (customFieldPrefix === false){
         return;
     }
 
-    insertDealAndCustomerFields();
+    // insertDealAndCustomerFields();
 
     numFields = this.numFields;
 
-    
+    var userFields = [];
+    var userFieldConfig = {};
+    var customTextFieldSuffixes  = [];
+    var customCheckFieldSuffixes = [];
+
+// fieldnames  = "buyername" or "123456_customText_1" etc    
+    for (var x = 0; x < numFields; x++) {
+        fieldObj = this.getField(this.getNthFieldName(x));
+        fieldName = fieldObj.name;
+        fieldNameArray = fieldName.split("_");
+
+        userFieldConfig.fieldName = fieldName;
+        userFieldConfig.fieldObj = fieldObj;
+        userFieldConfig.customField = false;        
+        if (typeof(fieldNameArray[1]) != 'undefined'){
+            if (fieldNameArray[1] == 'customText'){
+                userFieldConfig.customField = true;
+                customTextFieldSuffixes.push(fieldNameArray[2]);
+            }
+            if (fieldObj.type == 'customCheckbox'){
+                customCheckFieldSuffixes.push(fieldObj.customFieldNumber);
+            }
+        }
+        userFields.push(userFieldConfig);
+        userFieldConfig = {};
+    }    
+
+    numFields = userFields.length;
+
     for (var i = 0; i < numFields; i++) {
 
-console.println("index = " + i + "numfield = " + this.numFields);
-
-        fieldName = this.getNthFieldName(i);
-        fieldObj = this.getField(this.getNthFieldName(i));
+        // fieldName = this.getNthFieldName(i);
+        fieldName = userFields[i].fieldName;
+        // fieldObj = this.getField(this.getNthFieldName(i));
+        fieldObj = userFields[i].fieldObj;
         overDriveCode = getOverDriveCodes(fieldObj, overDriveCodes);
 
         if (overDriveCode.tooltip === null) {
 
             switch(fieldObj.type){
                 case "text":
-                    textFieldIndex += 1;
-                    textFieldIndex = buildCustomTextField(fieldName, fieldObj, customFieldPrefix, textFieldIndex);
+                    buildCustomTextField(fieldName, fieldObj, customFieldPrefix, customTextFieldSuffixes);
                     break;
                 case "checkbox":
                     fieldObj = buildCheckboxField(fieldObj);
@@ -147,51 +176,77 @@ console.println("index = " + i + "numfield = " + this.numFields);
 
 }
 
-function buildCustomTextField(fieldName, fieldObj, customFieldPrefix, textFieldIndex){
+function buildCustomTextField(fieldName, fieldObj, customFieldPrefix, customTextFieldSuffixes){
     // open a dialog to get values
     // you cannot rename a field so
     // build a new one from the ashes of the existing field
     // delete the existing field
     // note that the dialog has OK - DELETE buttons
-    // return textFieldIndex, which is deincremented by on on cancel
+    // return customFieldSuffix, which is deincremented by on on cancel
     
+    var fieldRectangle, isCustom, newFieldName, customField;
+    var formField, customFieldSuffix;
+
     var dialog = getCustomFieldDialog();
     dialog.fieldName    = fieldName;
     dialog.tooltip      = fieldObj.userName;
     dialog.displayValue = fieldObj.value;
     dialog.defaultValue = fieldObj.defaultValue;
+
+    customFieldSuffix = getCustomFieldSuffix(customTextFieldSuffixes);
     if ("ok" == app.execDialog(dialog)) {
 
-        var fieldRectangle = this.getField(fieldName).rect; 
-        var newFieldName   = customFieldPrefix + '_text_' + textFieldIndex;
+        formField      = this.getField(fieldName);
+        fieldRectangle = formField.rect; 
 
-        var newCustomField = this.addField(newFieldName, "text", 0, fieldRectangle);
+        isCustom       = formField.customField;
+
+        if (isCustom){
+            customField = formField;
+        } else {
+            newFieldName = customFieldPrefix + '_customText_' + customFieldSuffix;
+            customField  = this.addField(newFieldName, "text", 0, fieldRectangle);
+            customField.customField = true;
+            customField.customFieldNumber = customFieldSuffix;
+            customTextFieldSuffixes.push(customFieldSuffix);
+        }
 
         if (dialog.displayValue == '') {
-            newCustomField.value = "Needs Attention";
+            customField.value = "Needs Attention";
         } else {
-            newCustomField.value = dialog.displayValue;
+            customField.value = dialog.displayValue;
         }
 
         if (dialog.tooltip == '') {
-            newCustomField.userName = "Needs Attention";
+            customField.userName = "Needs Attention";
         } else {
-            newCustomField.userName = dialog.tooltip;
+            customField.userName = dialog.tooltip;
         }
 
         if (dialog.defaultValue != '') {
-            newCustomField.defaultValue = dialog.defaultValue;
+            customField.defaultValue = dialog.defaultValue;
         }
 
-        newCustomField.rotation = 0; 
-        newCustomField.textSize=0;
-        newCustomField.readonly = false;
-        newCustomField.textFont = "Helvetica-Bold";
+        customField.rotation = 0; 
+        customField.textSize = 0;
+        customField.readonly = false;
+        customField.textFont = "Helvetica-Bold";
 
     } else {
-        textFieldIndex -= 1;
+        if (typeof(fieldObj.customFieldNumber) != 'undefined'){
+            var needle = fieldObj.customFieldNumber;
+            var index  = customTextFieldSuffixes.indexOf(needle);
+            if (index > -1) {
+                customTextFieldSuffixes.splice(index, 1);
+            }
+        }
+
+        this.removeField(fieldName);
     }
 
-    this.removeField(fieldName);
-    return textFieldIndex;
+    if (isCustom){
+
+    } else {
+        this.removeField(fieldName);
+    }
 }
