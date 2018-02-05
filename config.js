@@ -132,7 +132,7 @@ function populateOverdriveFields() {
 
             switch(fieldObj.type){
                 case "text":
-                    buildCustomTextField(fieldName, fieldObj, customFieldPrefix, customTextFieldSuffixes);
+                    buildCustomTextField(fieldObj);
                     break;
                 case "checkbox":
                     fieldObj = buildCheckboxField(fieldObj);
@@ -174,79 +174,46 @@ function populateOverdriveFields() {
         }
     }
 
+    renumberCustomFields('text',customFieldPrefix);
+
 }
 
-function buildCustomTextField(fieldName, fieldObj, customFieldPrefix, customTextFieldSuffixes){
-    // open a dialog to get values
-    // you cannot rename a field so
-    // build a new one from the ashes of the existing field
-    // delete the existing field
-    // note that the dialog has OK - DELETE buttons
-    // return customFieldSuffix, which is deincremented by on on cancel
-    
-    var fieldRectangle, isCustom, newFieldName, customField;
-    var formField, customFieldSuffix;
-
-    var dialog = getCustomFieldDialog();
-    dialog.fieldName    = fieldName;
+function buildCustomTextField(fieldObj){   
+    var dialog          = getCustomFieldDialog();
+    dialog.fieldName    = fieldObj.name;
     dialog.tooltip      = fieldObj.userName;
     dialog.displayValue = fieldObj.value;
     dialog.defaultValue = fieldObj.defaultValue;
 
-    customFieldSuffix = getCustomFieldSuffix(customTextFieldSuffixes);
     if ("ok" == app.execDialog(dialog)) {
 
-        formField      = this.getField(fieldName);
-        fieldRectangle = formField.rect; 
-
-        isCustom       = formField.customField;
-
-        if (isCustom){
-            customField = formField;
-        } else {
-            newFieldName = customFieldPrefix + '_customText_' + customFieldSuffix;
-            customField  = this.addField(newFieldName, "text", 0, fieldRectangle);
-            customField.customField = true;
-            customField.customFieldNumber = customFieldSuffix;
-            customTextFieldSuffixes.push(customFieldSuffix);
-        }
+        fieldObj.customField = true;
 
         if (dialog.displayValue == '') {
-            customField.value = "Needs Attention";
+            fieldObj.value = "Needs Attention";
         } else {
-            customField.value = dialog.displayValue;
+            fieldObj.value = dialog.displayValue;
         }
 
         if (dialog.tooltip == '') {
-            customField.userName = "Needs Attention";
+            fieldObj.userName = "Needs Attention";
         } else {
-            customField.userName = dialog.tooltip;
+            fieldObj.userName = dialog.tooltip;
         }
 
         if (dialog.defaultValue != '') {
-            customField.defaultValue = dialog.defaultValue;
+            fieldObj.defaultValue = dialog.defaultValue;
+            fieldObj.value = dialog.defaultValue;
         }
 
-        customField.rotation = 0; 
-        customField.textSize = 0;
-        customField.readonly = false;
-        customField.textFont = "Helvetica-Bold";
+        fieldObj.rotation = 0; 
+        fieldObj.textSize = 0;
+        fieldObj.readonly = false;
+        fieldObj.textFont = "Helvetica-Bold";
+
 
     } else {
-        if (typeof(fieldObj.customFieldNumber) != 'undefined'){
-            var needle = fieldObj.customFieldNumber;
-            var index  = customTextFieldSuffixes.indexOf(needle);
-            if (index > -1) {
-                customTextFieldSuffixes.splice(index, 1);
-            }
-        }
-
-        this.removeField(fieldName);
+        this.removeField(fieldObj.name);
     }
 
-    if (isCustom){
-
-    } else {
-        this.removeField(fieldName);
-    }
 }

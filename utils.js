@@ -37,20 +37,15 @@ function getCustomFieldSuffix(suffixArray){
 }
 
 function printObject(obj){
-    console.println(obj.name);
-    app.alert({
-        cMsg: obj.name,
-        cTitle: "Acme Testing Service"
-    });
-
     var output = [];
     for (var property in obj) {
         // output += property + ': ' + obj[property];
         output.push(property);
-        output.sort();
-        // output += property + ", ";
     }
-app.alert({
+
+    output.sort();
+
+    app.alert({
         cMsg: output,
         cTitle: "Acme Testing Service"
     });
@@ -89,35 +84,60 @@ function dynamicSort(property) {
     }
 }
 
-
-function renumberCustomFields(){
+function renumberCustomFields(fieldType,fieldPrefix){
+    var customType;
+    var isCustom;
     var fieldConfigs = [];
     var fieldConfig = {};
-    var horizontal, vertical;
+    var horizontal, vertical, index, fieldRectangle, x;
+    var oldFieldName, newFieldName;
+
     var numFields = this.numFields;
-    for (var x = 0; x < numFields; x++) {
+    if (fieldType == 'text'){
+        customType = "_customText_";
+    } 
+    if (fieldType == 'checkbox'){
+        customType = "_customCheckbox_";
+    } 
+
+    for (x = 0; x < numFields; x++) {
         fieldObj = this.getField(this.getNthFieldName(x));
-        fieldConfig.fieldName  = fieldObj.name;
-        fieldConfig.horizontal = fieldObj.rect[0] * (-1);
-        fieldConfig.vertical   = fieldObj.rect[1];
-        fieldConfigs.push(fieldConfig);
-        // console.println(fieldObj.name);
-        // console.println('0 = ' + fieldObj.rect[0]);
-        // console.println('1 = ' + fieldObj.rect[1]);
-        // console.println('2 = ' + fieldObj.rect[2]);
-        // console.println('3 = ' + fieldObj.rect[3]);
-        // console.println('*****');
-
-        fieldConfig = {};
+        isCustom = fieldObj.customField;
+        if (isCustom && fieldObj.type == fieldType ){
+            fieldConfig.name         = fieldObj.name;
+            fieldConfig.value        = fieldObj.value;
+            fieldConfig.defaultValue = fieldObj.defaultValue;            
+            fieldConfig.userName     = fieldObj.userName;            
+            fieldConfig.horizontal   = fieldObj.rect[0] * (-1);
+            fieldConfig.vertical     = fieldObj.rect[1];
+            fieldConfig.rect         = fieldObj.rect;
+            fieldConfigs.push(fieldConfig);
+            fieldConfig = {};
+        }
     }
-
     fieldConfigs.sort(dynamicSortMultiple("vertical", "horizontal"));
-
-    // for (var x = 0; x < fieldConfigs.length; x++) {
-    //     console.println(fieldConfigs[x].fieldName);
-    // }
-
     this.setPageTabOrder(0, "rows");
 
+    for (x = 0; x < fieldConfigs.length; x++) {
+        oldFieldName = fieldConfigs[x].name;
+        this.removeField(oldFieldName);
+    }
+
+
+    for (x = 0; x < fieldConfigs.length; x++) {
+        customFieldSuffix = x + 1;
+        newFieldName = fieldPrefix + customType + customFieldSuffix;
+
+        fieldRectangle        = fieldConfigs[x].rect;
+        newField              = this.addField(newFieldName, "text", 0, fieldRectangle);
+        newField.userName     = fieldConfigs[x].userName;
+        newField.value        = fieldConfigs[x].value;
+        newField.defaultValue = fieldConfigs[x].defaultValue;
+        newField.customField  = true;
+        newField.rotation     = 0; 
+        newField.textSize     = 0;
+        newField.readonly     = false;
+        newField.textFont     = "Helvetica-Bold";
+    }
 
 }
