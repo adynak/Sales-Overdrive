@@ -3,8 +3,49 @@ app.addSubMenu({ cName: "Sales Over&Drive", cParent: "Help", nPos: 99 })
 app.addMenuItem({cName:"&JS Ref", cParent:"View", cExec:"app.openDoc('/C/Users/dynaka/Documents/Laser Tools/js_api_reference.pdf');" });
 app.addMenuItem({cName:"Update &Form Fields", cParent:"Sales Over&Drive", cExec:"populateOverdriveFields();" });
 app.addMenuItem({cName:"&Clear Test Values", cParent:"Sales Over&Drive", cExec:"clearFieldSampleValues();" });
-app.addMenuItem({cName:"t&est", cParent:"Sales Over&Drive", cExec:"renumberCustomFields();" });
+app.addMenuItem({cName:"t&est", cParent:"Sales Over&Drive", cExec:"objectViewer();" });
 
+
+function objectViewer(){
+    var f = this.getField('Check Box1');
+    console.println('style = ' + f.style);
+    var cbStatus = (f.isBoxChecked(0)) ? " checked" : " not checked";
+        console.println('isBoxChecked0 = ' + cbStatus);
+
+        var cbStatus = (f.isBoxChecked(1)) ? " checked" : " not checked";
+        console.println('isBoxChecked1 = ' + cbStatus);
+
+        var cbStatus = (f.isBoxChecked(3)) ? " checked" : " not checked";
+        console.println('isBoxChecked3 = ' + cbStatus);
+
+    console.println(f.rect[0]);
+    console.println(f.rect[1]);console.println(f.rect[2]);console.println(f.rect[3]);
+    console.println('fillColor = ' + f.fillColor);
+    console.println('strokeColor = ' + f.strokeColor);
+        console.println('type = ' + f.type);
+
+
+var cbdStatus = (f.isDefaultChecked(0)) ? "default Checked" : "default Unchecked";
+    console.println('isDefaultChecked = ' + cbdStatus);
+
+
+    cbRect = [141.41099548339844,561.6220092773438,159.41099548339844,543.6220092773438];
+        var x = this.addField("12345_checkbox_1","checkbox",0,cbRect);
+        x.style = f.style;
+        x.userName = f.userName;
+        x.value = f.value;
+        x.strokeColor = color.transparent;
+        x.fillColor = color.transparent;
+
+        if (f.isDefaultChecked(0)){
+            x.checkThisBox(0,true);
+            x.defaultIsChecked(0,true);
+        }
+
+
+
+
+}
 
 
 // Functions
@@ -22,15 +63,31 @@ function clearFieldSampleValues(){
 
 }
 
-function buildCheckboxField(config){
-    config.style       = style.cr;
-    config.textSize    = 0;
-    config.userName    = 'Click to check/uncheck this box';
-    config.fillColor   = ["G,1"];
-    config.borderColor = ["G,0"];
-    config.strokeColor = ["G,0"];
-    config.borderStyle = "solid";
-    return config;
+function buildCheckboxField(fieldObj){
+
+    var dialog          = getCustomCheckboxDialog();
+    dialog.fieldName    = fieldObj.name;
+    dialog.tooltip      = fieldObj.userName;
+    if ("ok" == app.execDialog(dialog)) {
+        console.println('check');
+        fieldObj.customField = true;
+
+        fieldObj.style = 'cross';
+        fieldObj.strokeColor = color.transparent;
+        fieldObj.fillColor = color.transparent;
+
+        if (dialog.tooltip == '') {
+            fieldObj.userName = "Needs Attention";
+        } else {
+            fieldObj.userName = dialog.tooltip;
+        }
+console.println(dialog.checked);
+        if (dialog.checked == true){
+            fieldObj.checkThisBox(0,true);
+            fieldObj.defaultIsChecked(0,true);
+        }
+    }
+
 }
 
 function insertDealAndCustomerFields(){

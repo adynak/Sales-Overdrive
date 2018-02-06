@@ -115,6 +115,7 @@ function renumberCustomFields(fieldType,fieldPrefix){
             fieldConfig = {};
         }
     }
+    
     fieldConfigs.sort(dynamicSortMultiple("vertical", "horizontal"));
     this.setPageTabOrder(0, "rows");
 

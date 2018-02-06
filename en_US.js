@@ -5,3 +5,7 @@ txtGetFormID = {
              'Accept this one, enter your own or generate a random FormID.',
     customIDPrompt: 'Custom Field Prefix:'
 }
+
+txtDialogPrompts = {
+	checkBoxTooltip : 'Click to check/uncheck this box'
+}
