@@ -7,8 +7,10 @@ app.addMenuItem({cName:"t&est", cParent:"Sales Over&Drive", cExec:"objectViewer(
 
 
 function objectViewer(){
-    var f = this.getField('Check Box1');
-    console.println('style = ' + f.style);
+
+
+    var f = this.getField('Check Box2');
+    console.println('value = ' + f.value);
     var cbStatus = (f.isBoxChecked(0)) ? " checked" : " not checked";
         console.println('isBoxChecked0 = ' + cbStatus);
 
@@ -65,24 +67,24 @@ function clearFieldSampleValues(){
 
 function buildCheckboxField(fieldObj){
 
-    var dialog          = getCustomCheckboxDialog();
-    dialog.fieldName    = fieldObj.name;
-    dialog.tooltip      = fieldObj.userName;
+    var dialog         = getCustomCheckboxDialog();
+    dialog.fieldName   = fieldObj.name;
+    dialog.tooltip     = fieldObj.userName;
+    dialog.isChecked   = (fieldObj.isDefaultChecked(0)) ? true : false;
     if ("ok" == app.execDialog(dialog)) {
-        console.println('check');
         fieldObj.customField = true;
 
-        fieldObj.style = 'cross';
+        fieldObj.style       = 'cross';
         fieldObj.strokeColor = color.transparent;
-        fieldObj.fillColor = color.transparent;
+        fieldObj.fillColor   = color.transparent;
 
         if (dialog.tooltip == '') {
             fieldObj.userName = "Needs Attention";
         } else {
             fieldObj.userName = dialog.tooltip;
         }
-console.println(dialog.checked);
-        if (dialog.checked == true){
+
+        if (dialog.isChecked == true){
             fieldObj.checkThisBox(0,true);
             fieldObj.defaultIsChecked(0,true);
         }
@@ -144,7 +146,7 @@ function populateOverdriveFields() {
         return;
     }
 
-    // insertDealAndCustomerFields();
+    insertDealAndCustomerFields();
 
     numFields = this.numFields;
 
@@ -232,6 +234,7 @@ function populateOverdriveFields() {
     }
 
     renumberCustomFields('text',customFieldPrefix);
+    renumberCustomFields('checkbox',customFieldPrefix);
 
 }
 

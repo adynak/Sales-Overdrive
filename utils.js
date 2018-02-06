@@ -39,6 +39,7 @@ function getCustomFieldSuffix(suffixArray){
 function printObject(obj){
     var output = [];
     for (var property in obj) {
+
         // output += property + ': ' + obj[property];
         output.push(property);
     }
@@ -86,7 +87,7 @@ function dynamicSort(property) {
 
 function renumberCustomFields(fieldType,fieldPrefix){
     var customType;
-    var isCustom;
+    var isCustom, isChecked, isDefault;
     var fieldConfigs = [];
     var fieldConfig = {};
     var horizontal, vertical, index, fieldRectangle, x;
@@ -111,6 +112,16 @@ function renumberCustomFields(fieldType,fieldPrefix){
             fieldConfig.horizontal   = fieldObj.rect[0] * (-1);
             fieldConfig.vertical     = fieldObj.rect[1];
             fieldConfig.rect         = fieldObj.rect;
+
+            if (fieldType == 'checkbox'){
+                fieldConfig.style        = fieldObj.style;
+                fieldConfig.fillColor    = fieldObj.fillColor;
+                fieldConfig.strokeColor  = fieldObj.strokeColor;
+
+                fieldConfig.isChecked = (fieldObj.isBoxChecked(0))     ? true: false;
+                fieldConfig.isDefault = (fieldObj.isDefaultChecked(0)) ? true: false;
+            }
+ 
             fieldConfigs.push(fieldConfig);
             fieldConfig = {};
         }
@@ -124,21 +135,29 @@ function renumberCustomFields(fieldType,fieldPrefix){
         this.removeField(oldFieldName);
     }
 
-
     for (x = 0; x < fieldConfigs.length; x++) {
         customFieldSuffix = x + 1;
         newFieldName = fieldPrefix + customType + customFieldSuffix;
 
         fieldRectangle        = fieldConfigs[x].rect;
-        newField              = this.addField(newFieldName, "text", 0, fieldRectangle);
+        newField              = this.addField(newFieldName, fieldType, 0, fieldRectangle);
         newField.userName     = fieldConfigs[x].userName;
         newField.value        = fieldConfigs[x].value;
-        newField.defaultValue = fieldConfigs[x].defaultValue;
-        newField.customField  = true;
-        newField.rotation     = 0; 
-        newField.textSize     = 0;
-        newField.readonly     = false;
-        newField.textFont     = "Helvetica-Bold";
+        if (fieldType == 'text'){
+            newField.defaultValue = fieldConfigs[x].defaultValue;
+            newField.customField  = true;
+            newField.rotation     = 0; 
+            newField.textSize     = 0;
+            newField.readonly     = false;
+            newField.textFont     = "Helvetica-Bold";
+        } 
+        if (fieldType == 'checkbox'){
+            newField.style       = fieldConfigs[x].style;
+            newField.fillcolor   = fieldConfigs[x].fillColor;
+            newField.strokeColor = fieldConfigs[x].strokeColor;
+            newField.checkThisBox(0,fieldConfigs[x].isChecked);
+            newField.defaultIsChecked(0,fieldConfigs[x].isDefault);
+        }
     }
 
 }

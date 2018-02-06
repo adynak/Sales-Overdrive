@@ -97,11 +97,11 @@ function getCustomFieldDialog(){
     return dialog;
 }
 
-
 function getCustomCheckboxDialog(){
         var dialog = {
         fieldName:"",
         tooltip:"",
+        isChecked:"",
         initialize: function(dialog) {
             var tooltip = dialog.store()["ttip"];
             tooltip = txtDialogPrompts.checkBoxTooltip;
@@ -110,13 +110,14 @@ function getCustomCheckboxDialog(){
             }
             dialog.load({
                 "fldn": this.fieldName,
-                "ttip": tooltip
+                "ttip": tooltip,
+                "dval": this.isChecked
             });
         },
         commit: function(dialog) { 
             var results = dialog.store();
             this.tooltip = results["ttip"];
-            this.checked = results["dval"];
+            this.isChecked = results["dval"];
         },
         description: {
             name: "Custom Check Box Editor: ",
