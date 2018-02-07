@@ -140,6 +140,9 @@ function renumberCustomFields(fieldType,fieldPrefix){
         newFieldName = fieldPrefix + customType + customFieldSuffix;
 
         fieldRectangle        = fieldConfigs[x].rect;
+        if (fieldType == 'text'){
+            fieldRectangle[1] = fieldRectangle[3] + 15;
+        }
         newField              = this.addField(newFieldName, fieldType, 0, fieldRectangle);
         newField.userName     = fieldConfigs[x].userName;
         newField.value        = fieldConfigs[x].value;

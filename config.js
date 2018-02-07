@@ -3,52 +3,6 @@ app.addSubMenu({ cName: "Sales Over&Drive", cParent: "Help", nPos: 99 })
 app.addMenuItem({cName:"&JS Ref", cParent:"View", cExec:"app.openDoc('/C/Users/dynaka/Documents/Laser Tools/js_api_reference.pdf');" });
 app.addMenuItem({cName:"Update &Form Fields", cParent:"Sales Over&Drive", cExec:"populateOverdriveFields();" });
 app.addMenuItem({cName:"&Clear Test Values", cParent:"Sales Over&Drive", cExec:"clearFieldSampleValues();" });
-app.addMenuItem({cName:"t&est", cParent:"Sales Over&Drive", cExec:"objectViewer();" });
-
-
-function objectViewer(){
-
-
-    var f = this.getField('Check Box2');
-    console.println('value = ' + f.value);
-    var cbStatus = (f.isBoxChecked(0)) ? " checked" : " not checked";
-        console.println('isBoxChecked0 = ' + cbStatus);
-
-        var cbStatus = (f.isBoxChecked(1)) ? " checked" : " not checked";
-        console.println('isBoxChecked1 = ' + cbStatus);
-
-        var cbStatus = (f.isBoxChecked(3)) ? " checked" : " not checked";
-        console.println('isBoxChecked3 = ' + cbStatus);
-
-    console.println(f.rect[0]);
-    console.println(f.rect[1]);console.println(f.rect[2]);console.println(f.rect[3]);
-    console.println('fillColor = ' + f.fillColor);
-    console.println('strokeColor = ' + f.strokeColor);
-        console.println('type = ' + f.type);
-
-
-var cbdStatus = (f.isDefaultChecked(0)) ? "default Checked" : "default Unchecked";
-    console.println('isDefaultChecked = ' + cbdStatus);
-
-
-    cbRect = [141.41099548339844,561.6220092773438,159.41099548339844,543.6220092773438];
-        var x = this.addField("12345_checkbox_1","checkbox",0,cbRect);
-        x.style = f.style;
-        x.userName = f.userName;
-        x.value = f.value;
-        x.strokeColor = color.transparent;
-        x.fillColor = color.transparent;
-
-        if (f.isDefaultChecked(0)){
-            x.checkThisBox(0,true);
-            x.defaultIsChecked(0,true);
-        }
-
-
-
-
-}
-
 
 // Functions
 
@@ -93,14 +47,11 @@ function buildCheckboxField(fieldObj){
 }
 
 function insertDealAndCustomerFields(){
-
     for ( var i=0; i < this.numPages; i++) {
-        
         var dealNoLbl = [0 , 792, 60 , 777];
         var dealNo    = [62, 792, 160, 777];
-
-        var custNoLbl = [0 , 775, 60 , 760];
-        var custNo    = [62, 775, 160, 760];
+        var custNoLbl = [0 , 778, 60 , 763];
+        var custNo    = [62, 778, 160, 763];
 
         var w = this.addField("custnolbl","text",i,custNoLbl);
         w.rotation = 0; 
@@ -126,7 +77,6 @@ function insertDealAndCustomerFields(){
         z.readonly = false;
         z.textFont = "Helvetica-Bold";
     }
-
 }
 
 function populateOverdriveFields() {
@@ -134,6 +84,7 @@ function populateOverdriveFields() {
     var fieldName, fieldObj = {};
     var numFields;
     var fieldNameArray;
+    var repeatedField;
 
     var jsonFilename   = "/C/Users/dynaka/Documents/Lasert~1/availableFields.json";
     var jsonStream     = util.readFileIntoStream(jsonFilename);
@@ -160,6 +111,23 @@ function populateOverdriveFields() {
         fieldObj = this.getField(this.getNthFieldName(x));
         fieldName = fieldObj.name;
         fieldNameArray = fieldName.split("_");
+
+        if (fieldObj.type == 'text'){
+            if (typeof fieldObj.page == "number") {
+                fieldRectangle    = fieldObj.rect;            
+                fieldRectangle[1] = fieldRectangle[3] + 15;
+                fieldObj.rect     = fieldRectangle;
+            } else {
+                for (var j = 1; j < fieldObj.page.length; j++) {
+                    repeatedField      = this.getField(this.getNthFieldName(x) + "." + j);
+                    console.println(this.getNthFieldName(x) + "." + j)
+                    fieldRectangle     = repeatedField.rect;            
+                    fieldRectangle[1]  = fieldRectangle[3] + 15;
+                    repeatedField.rect = fieldRectangle;
+                }
+            } 
+
+        }
 
         userFieldConfig.fieldName = fieldName;
         userFieldConfig.fieldObj = fieldObj;
