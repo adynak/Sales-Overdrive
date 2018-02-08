@@ -1,3 +1,8 @@
+var con = {
+    log : function(debugItem){
+        console.println(debugItem);
+    }
+}
 function randomInterval(min,max)
 {
 	var someNumber;
@@ -90,7 +95,7 @@ function renumberCustomFields(fieldType,fieldPrefix){
     var isCustom, isChecked, isDefault;
     var fieldConfigs = [];
     var fieldConfig = {};
-    var horizontal, vertical, index, fieldRectangle, x;
+    var horizontal, vertical, index, fieldRectangle, x, page;
     var oldFieldName, newFieldName;
 
     var numFields = this.numFields;
@@ -111,6 +116,7 @@ function renumberCustomFields(fieldType,fieldPrefix){
             fieldConfig.userName     = fieldObj.userName;            
             fieldConfig.horizontal   = fieldObj.rect[0] * (-1);
             fieldConfig.vertical     = fieldObj.rect[1];
+            fieldConfig.page         = fieldObj.page;
             fieldConfig.rect         = fieldObj.rect;
 
             if (fieldType == 'checkbox'){
@@ -128,7 +134,9 @@ function renumberCustomFields(fieldType,fieldPrefix){
     }
     
     fieldConfigs.sort(dynamicSortMultiple("vertical", "horizontal"));
-    this.setPageTabOrder(0, "rows");
+
+    for (var i = 0; i < this.numPages; i++)
+        this.setPageTabOrder(i, "rows");
 
     for (x = 0; x < fieldConfigs.length; x++) {
         oldFieldName = fieldConfigs[x].name;
@@ -143,9 +151,12 @@ function renumberCustomFields(fieldType,fieldPrefix){
         if (fieldType == 'text'){
             fieldRectangle[1] = fieldRectangle[3] + 15;
         }
-        newField              = this.addField(newFieldName, fieldType, 0, fieldRectangle);
+
+        page = fieldConfigs[x].page;
+        newField              = this.addField(newFieldName, fieldType, page, fieldRectangle);
         newField.userName     = fieldConfigs[x].userName;
         newField.value        = fieldConfigs[x].value;
+        newField.page         = fieldConfigs[x].page;
         if (fieldType == 'text'){
             newField.defaultValue = fieldConfigs[x].defaultValue;
             newField.customField  = true;
@@ -163,4 +174,34 @@ function renumberCustomFields(fieldType,fieldPrefix){
         }
     }
 
+}
+
+function findClonedCustomFields(overDriveCodes){
+    var fieldPrefix, fieldSuffix, newFieldName, fieldType, fieldRectangle, page;
+    // fields with the same name show up only once in numFields
+    numFields = this.numFields;
+    for (var x = 0; x < numFields; x++) {
+        fieldObj = this.getField(this.getNthFieldName(x));
+
+        overDriveCode = getOverDriveCodes(fieldObj, overDriveCodes);
+        // if this field name is found in the list of overDriveCoces, skip it
+
+        if (overDriveCode.tooltip === null) {
+            fieldName = fieldObj.name;
+            if (typeof fieldObj.page == "number") {
+                // his is not a cloned field
+            } else {
+                for (var j = 0; j < fieldObj.page.length; j++) {
+                    repeatedField  = this.getField(this.getNthFieldName(x) + "." + j);
+                    fieldSuffix    = randomInterval(100000,999999);
+                    fieldType      = repeatedField.type;
+                    fieldRectangle = repeatedField.rect;
+                    page           = fieldObj.page[j];
+                    newFieldName   = fieldType + '_' + fieldSuffix;
+                    newField       = this.addField(newFieldName, fieldType, page, fieldRectangle);
+                }
+                this.removeField(fieldName);
+            }
+        }
+    }
 }

@@ -18,6 +18,12 @@ function getCustomFieldDialog(){
     		this.displayValue = results["dval"];
             this.defaultValue = results["fval"];
         },
+        okay: function(dialog) {
+            dialog.end("okay"); 
+        },
+        dele: function(dialog){
+            dialog.end("dele"); 
+        },
         description: {
             name: "Custom Field Editor: ",
             align_children: "align_left",
@@ -83,10 +89,21 @@ function getCustomFieldDialog(){
                             ]
                         },
                         {
-                            alignment: "align_right",
-                            type: "ok_cancel",
-                            ok_name: "Ok",
-                            cancel_name: "Delete"
+                            type: "view",
+                            align_children: "align_row",
+                            elements:
+                            [
+                                {
+                                    type: "button",
+                                    item_id: "okay",
+                                    name: "OK"
+                                },
+                                {
+                                    type: "button",
+                                    item_id: "dele",
+                                    name: "Remove Field"
+                                }
+                            ]
                         }
                     ]
                 }

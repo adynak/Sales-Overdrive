@@ -47,36 +47,60 @@ function buildCheckboxField(fieldObj){
 }
 
 function insertDealAndCustomerFields(){
-    for ( var i=0; i < this.numPages; i++) {
-        var dealNoLbl = [0 , 792, 60 , 777];
-        var dealNo    = [62, 792, 160, 777];
-        var custNoLbl = [0 , 778, 60 , 763];
-        var custNo    = [62, 778, 160, 763];
+    // put these fields once on each page
+    var fieldObj;
+    var numPages = this.numPages;
 
-        var w = this.addField("custnolbl","text",i,custNoLbl);
-        w.rotation = 0; 
-        w.textSize=0;
-        w.readonly = false;
-        w.textFont = "Helvetica-Bold";
 
-        var x = this.addField("custno","text",i,custNo);
-        x.rotation = 0; 
-        x.textSize=0;
-        x.readonly = false;
-        x.textFont = "Helvetica-Bold";
+    var dealNoLbl = [0 , 792, 60 , 777];
+    var dealNo    = [62, 792, 160, 777];
+    var custNoLbl = [0 , 778, 60 , 763];
+    var custNo    = [62, 778, 160, 763];
 
-        var y = this.addField("dealnolbl","text",i,dealNoLbl);
-        y.rotation = 0; 
-        y.textSize=0;
-        y.readonly = false;
-        y.textFont = "Helvetica-Bold";
-
-        var z = this.addField("dealno","text",i,dealNo);
-        z.rotation = 0; 
-        z.textSize=0;
-        z.readonly = false;
-        z.textFont = "Helvetica-Bold";
+    fieldObj = this.getField("custnolbl");
+    if (fieldObj === null){
+        for ( var i=0; i < numPages; i++) {
+            var w = this.addField("custnolbl","text",i,custNoLbl);
+            w.rotation = 0; 
+            w.textSize=0;
+            w.readonly = true;
+            w.textFont = "Helvetica-Bold";
+        }
     }
+
+    fieldObj = this.getField("custno");
+    if (fieldObj === null){
+        for ( var i=0; i < numPages; i++) {
+            var x = this.addField("custno","text",i,custNo);
+            x.rotation = 0; 
+            x.textSize=0;
+            x.readonly = false;
+            x.textFont = "Helvetica-Bold";
+        }
+    }
+
+    fieldObj = this.getField("dealnolbl");
+    if (fieldObj === null){
+        for ( var i=0; i < numPages; i++) {
+            var y = this.addField("dealnolbl","text",i,dealNoLbl);
+            y.rotation = 0; 
+            y.textSize=0;
+            y.readonly = true;
+            y.textFont = "Helvetica-Bold";
+        }
+    }
+
+    fieldObj = this.getField("dealno");
+    if (fieldObj === null){
+        for ( var i=0; i < numPages; i++) {
+            var z = this.addField("dealno","text",i,dealNo);
+            z.rotation = 0; 
+            z.textSize=0;
+            z.readonly = false;
+            z.textFont = "Helvetica-Bold";
+        }
+    }
+
 }
 
 function populateOverdriveFields() {
@@ -97,6 +121,8 @@ function populateOverdriveFields() {
         return;
     }
 
+    // cut and paset fields are kinda hard to see, find them, make new visible ones, and delete the originals
+    findClonedCustomFields(overDriveCodes);
     insertDealAndCustomerFields();
 
     numFields = this.numFields;
@@ -117,13 +143,16 @@ function populateOverdriveFields() {
                 fieldRectangle    = fieldObj.rect;            
                 fieldRectangle[1] = fieldRectangle[3] + 15;
                 fieldObj.rect     = fieldRectangle;
+                fieldObj.textSize=0;
+                fieldObj.textFont = "Helvetica-Bold";
             } else {
-                for (var j = 1; j < fieldObj.page.length; j++) {
+                for (var j = 0; j < fieldObj.page.length; j++) {
                     repeatedField      = this.getField(this.getNthFieldName(x) + "." + j);
-                    console.println(this.getNthFieldName(x) + "." + j)
                     fieldRectangle     = repeatedField.rect;            
                     fieldRectangle[1]  = fieldRectangle[3] + 15;
                     repeatedField.rect = fieldRectangle;
+                    repeatedField.textSize=0;
+                    repeatedField.textFont = "Helvetica-Bold";
                 }
             } 
 
@@ -146,13 +175,12 @@ function populateOverdriveFields() {
     }    
 
     numFields = userFields.length;
+    
 
     for (var i = 0; i < numFields; i++) {
 
-        // fieldName = this.getNthFieldName(i);
         fieldName = userFields[i].fieldName;
-        // fieldObj = this.getField(this.getNthFieldName(i));
-        fieldObj = userFields[i].fieldObj;
+        fieldObj  = userFields[i].fieldObj;
         overDriveCode = getOverDriveCodes(fieldObj, overDriveCodes);
 
         if (overDriveCode.tooltip === null) {
@@ -206,14 +234,17 @@ function populateOverdriveFields() {
 
 }
 
-function buildCustomTextField(fieldObj){   
+function buildCustomTextField(fieldObj){
+    var dialogReturnValue;
     var dialog          = getCustomFieldDialog();
     dialog.fieldName    = fieldObj.name;
     dialog.tooltip      = fieldObj.userName;
     dialog.displayValue = fieldObj.value;
     dialog.defaultValue = fieldObj.defaultValue;
 
-    if ("ok" == app.execDialog(dialog)) {
+    dialogReturnValue = app.execDialog(dialog);
+
+    if ("okay" == dialogReturnValue) {
 
         fieldObj.customField = true;
 
@@ -238,9 +269,9 @@ function buildCustomTextField(fieldObj){
         fieldObj.textSize = 0;
         fieldObj.readonly = false;
         fieldObj.textFont = "Helvetica-Bold";
+    }
 
-
-    } else {
+    if ('dele' == dialogReturnValue){
         this.removeField(fieldObj.name);
     }
 
