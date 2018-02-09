@@ -19,6 +19,10 @@ function getCustomFieldDialog(){
             this.defaultValue = results["fval"];
         },
         okay: function(dialog) {
+            var results = dialog.store();
+            this.tooltip      = results[ "ttip"];
+            this.displayValue = results["dval"];
+            this.defaultValue = results["fval"];
             dialog.end("okay"); 
         },
         dele: function(dialog){

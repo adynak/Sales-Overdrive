@@ -121,7 +121,7 @@ function populateOverdriveFields() {
         return;
     }
 
-    // cut and paset fields are kinda hard to see, find them, make new visible ones, and delete the originals
+    // cut and paste fields are kinda hard to see, find them, make new visible ones, and delete the originals
     findClonedCustomFields(overDriveCodes);
     insertDealAndCustomerFields();
 
@@ -143,15 +143,15 @@ function populateOverdriveFields() {
                 fieldRectangle    = fieldObj.rect;            
                 fieldRectangle[1] = fieldRectangle[3] + 15;
                 fieldObj.rect     = fieldRectangle;
-                fieldObj.textSize=0;
+                fieldObj.textSize = 0;
                 fieldObj.textFont = "Helvetica-Bold";
             } else {
                 for (var j = 0; j < fieldObj.page.length; j++) {
-                    repeatedField      = this.getField(this.getNthFieldName(x) + "." + j);
-                    fieldRectangle     = repeatedField.rect;            
-                    fieldRectangle[1]  = fieldRectangle[3] + 15;
-                    repeatedField.rect = fieldRectangle;
-                    repeatedField.textSize=0;
+                    repeatedField          = this.getField(this.getNthFieldName(x) + "." + j);
+                    fieldRectangle         = repeatedField.rect;            
+                    fieldRectangle[1]      = fieldRectangle[3] + 15;
+                    repeatedField.rect     = fieldRectangle;
+                    repeatedField.textSize = 0;
                     repeatedField.textFont = "Helvetica-Bold";
                 }
             } 
@@ -160,7 +160,10 @@ function populateOverdriveFields() {
 
         userFieldConfig.fieldName = fieldName;
         userFieldConfig.fieldObj = fieldObj;
-        userFieldConfig.customField = false;        
+        userFieldConfig.customField = false;  
+        userFieldConfig.horizontal   = fieldObj.rect[0] * (-1);
+        userFieldConfig.vertical     = fieldObj.rect[1];
+
         if (typeof(fieldNameArray[1]) != 'undefined'){
             if (fieldNameArray[1] == 'customText'){
                 userFieldConfig.customField = true;
@@ -175,7 +178,6 @@ function populateOverdriveFields() {
     }    
 
     numFields = userFields.length;
-    
 
     for (var i = 0; i < numFields; i++) {
 
@@ -190,7 +192,7 @@ function populateOverdriveFields() {
                     buildCustomTextField(fieldObj);
                     break;
                 case "checkbox":
-                    fieldObj = buildCheckboxField(fieldObj);
+                    buildCheckboxField(fieldObj);
                 break;
             }
 
