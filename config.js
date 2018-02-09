@@ -185,6 +185,9 @@ function populateOverdriveFields() {
 
     numFields = userFields.length;
 
+        userFields.sort(dynamicSortMultiple("vertical", "horizontal"));
+
+
     for (var i = 0; i < numFields; i++) {
 
         fieldName = userFields[i].fieldName;

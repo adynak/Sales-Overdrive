@@ -192,13 +192,15 @@ function findClonedCustomFields(overDriveCodes){
                 // his is not a cloned field
             } else {
                 for (var j = 0; j < fieldObj.page.length; j++) {
-                    repeatedField  = this.getField(this.getNthFieldName(x) + "." + j);
-                    fieldSuffix    = randomInterval(100000,999999);
-                    fieldType      = repeatedField.type;
-                    fieldRectangle = repeatedField.rect;
-                    page           = fieldObj.page[j];
-                    newFieldName   = fieldType + '_' + fieldSuffix;
-                    newField       = this.addField(newFieldName, fieldType, page, fieldRectangle);
+                    repeatedField       = this.getField(this.getNthFieldName(x) + "." + j);
+                    fieldSuffix         = randomInterval(100000,999999);
+                    fieldType           = repeatedField.type;
+                    fieldRectangle      = repeatedField.rect;
+                    page                = fieldObj.page[j];
+                    newFieldName        = fieldType + '_' + fieldSuffix;
+                    newField            = this.addField(newFieldName, fieldType, page, fieldRectangle);
+                    newField.horizontal = repeatedField.rect[0] * (-1);
+                    newField.vertical   = repeatedField.rect[1];
                 }
                 this.removeField(fieldName);
             }
