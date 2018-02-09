@@ -20,12 +20,14 @@ function clearFieldSampleValues(){
 }
 
 function buildCheckboxField(fieldObj){
-
+    var dialogReturnValue;
     var dialog         = getCustomCheckboxDialog();
     dialog.fieldName   = fieldObj.name;
     dialog.tooltip     = fieldObj.userName;
     dialog.isChecked   = (fieldObj.isDefaultChecked(0)) ? true : false;
-    if ("ok" == app.execDialog(dialog)) {
+
+    dialogReturnValue = app.execDialog(dialog);
+    if ("ok" == dialogReturnValue) {
         fieldObj.customField = true;
 
         fieldObj.style       = 'cross';
@@ -42,6 +44,10 @@ function buildCheckboxField(fieldObj){
             fieldObj.checkThisBox(0,true);
             fieldObj.defaultIsChecked(0,true);
         }
+    }
+
+    if ('dele' == dialogReturnValue){
+        this.removeField(fieldObj.name);
     }
 
 }
@@ -245,9 +251,9 @@ function buildCustomTextField(fieldObj){
     dialog.defaultValue = fieldObj.defaultValue;
 
     dialogReturnValue = app.execDialog(dialog);
+  
 
-    if ("okay" == dialogReturnValue) {
-
+    if ("ok" == dialogReturnValue) {
         fieldObj.customField = true;
 
         if (dialog.displayValue == '') {

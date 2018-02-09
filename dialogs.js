@@ -18,14 +18,13 @@ function getCustomFieldDialog(){
     		this.displayValue = results["dval"];
             this.defaultValue = results["fval"];
         },
-        okay: function(dialog) {
-            var results = dialog.store();
-            this.tooltip      = results[ "ttip"];
-            this.displayValue = results["dval"];
-            this.defaultValue = results["fval"];
-            dialog.end("okay"); 
-        },
-        dele: function(dialog){
+        // ok: function(dialog) {
+        //  this dialog returns "ok" automagically
+        // },
+        // cancel: function(dialog){
+        //  this dialog returns "cancel" automagically
+        // },
+        other: function(dialog){
             dialog.end("dele"); 
         },
         description: {
@@ -93,21 +92,11 @@ function getCustomFieldDialog(){
                             ]
                         },
                         {
-                            type: "view",
-                            align_children: "align_row",
-                            elements:
-                            [
-                                {
-                                    type: "button",
-                                    item_id: "okay",
-                                    name: "OK"
-                                },
-                                {
-                                    type: "button",
-                                    item_id: "dele",
-                                    name: "Remove Field"
-                                }
-                            ]
+                            alignment: "align_right",
+                            type: "ok_cancel_other",
+                            ok_name: "Ok",
+                            cancel_name: "Cancel",
+                            other_name: "Remove"
                         }
                     ]
                 }
@@ -140,6 +129,15 @@ function getCustomCheckboxDialog(){
             this.tooltip = results["ttip"];
             this.isChecked = results["dval"];
         },
+        // ok: function(dialog) {
+        //  this dialog returns "ok" automagically
+        // },
+        // cancel: function(dialog){
+        //  this dialog returns "cancel" automagically
+        // },
+        other: function(dialog){
+            dialog.end("dele"); 
+        },        
         description: {
             name: "Custom Check Box Editor: ",
             align_children: "align_left",
@@ -183,13 +181,13 @@ function getCustomCheckboxDialog(){
                                 }                                
                             ]
                         },
-                        {
+{
                             alignment: "align_right",
-                            type: "ok_cancel",
+                            type: "ok_cancel_other",
                             ok_name: "Ok",
-                            cancel_name: "Delete"
-                        }
-                    ]
+                            cancel_name: "Cancel",
+                            other_name: "Remove"
+                        }                    ]
                 }
             ]
         }
