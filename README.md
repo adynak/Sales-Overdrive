@@ -76,4 +76,4 @@ See also the list of [contributors](https://github.com/adynak/Sales-Overdrive/co
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/adynak/Sales-Overdrive/LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/adynak/Sales-Overdrive/blob/master/LICENSE.md) file for details
