@@ -19,9 +19,11 @@ Adobe Acrobat DC
 ```
 ### Installing
 Clone the repo to a folder under your Javascripts folder.  This folder might be read only.  You will need to fix that.  You might find the folder here:
+
 ```C:\Program Files (x86)\Adobe\Acrobat DC\Acrobat\Javascripts```
 
 If you cannot find this file, run this code in the interactive JavaScript console:
+
 ```app.getPath("app", "javascript");```
 
 ## Running the app
