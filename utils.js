@@ -118,6 +118,8 @@ function renumberCustomFields(fieldType,fieldPrefix){
             fieldConfig.vertical     = fieldObj.rect[1];
             fieldConfig.page         = fieldObj.page;
             fieldConfig.rect         = fieldObj.rect;
+            fieldConfig.comb         = fieldObj.comb;
+            fieldConfig.charLimit    = fieldObj.charLimit;
 
             if (fieldType == 'checkbox'){
                 fieldConfig.style        = fieldObj.style;
@@ -135,11 +137,11 @@ function renumberCustomFields(fieldType,fieldPrefix){
     
     fieldConfigs.sort(dynamicSortMultiple("vertical", "horizontal"));
 
-    for (var i = 0; i < this.numPages; i++)
-        this.setPageTabOrder(i, "rows");
+    for (var ix = 0; ix < this.numPages; ix++)
+        this.setPageTabOrder(ix, "rows");
 
-    for (x = 0; x < fieldConfigs.length; x++) {
-        oldFieldName = fieldConfigs[x].name;
+    for (var fx = 0; fx < fieldConfigs.length; fx++) {
+        oldFieldName = fieldConfigs[fx].name;
         this.removeField(oldFieldName);
     }
 
@@ -147,31 +149,38 @@ function renumberCustomFields(fieldType,fieldPrefix){
         customFieldSuffix = x + 1;
         newFieldName = fieldPrefix + customType + customFieldSuffix;
 
-        fieldRectangle        = fieldConfigs[x].rect;
-        if (fieldType == 'text'){
-            fieldRectangle[1] = fieldRectangle[3] + 15;
-        }
-
         page = fieldConfigs[x].page;
-        newField              = this.addField(newFieldName, fieldType, page, fieldRectangle);
-        newField.userName     = fieldConfigs[x].userName;
-        newField.value        = fieldConfigs[x].value;
-        newField.page         = fieldConfigs[x].page;
-        if (fieldType == 'text'){
-            newField.defaultValue = fieldConfigs[x].defaultValue;
-            newField.customField  = true;
-            newField.rotation     = 0; 
-            newField.textSize     = 0;
-            newField.readonly     = false;
-            newField.textFont     = "Helvetica-Bold";
-        } 
-        if (fieldType == 'checkbox'){
-            newField.style       = fieldConfigs[x].style;
-            newField.fillcolor   = fieldConfigs[x].fillColor;
-            newField.strokeColor = fieldConfigs[x].strokeColor;
-            newField.checkThisBox(0,fieldConfigs[x].isChecked);
-            newField.defaultIsChecked(0,fieldConfigs[x].isDefault);
-        }
+         if (typeof fieldConfigs[x].page == "number") {
+            fieldRectangle    = fieldConfigs[x].rect;
+            if (fieldType == 'text'){
+                fieldRectangle[1] = fieldRectangle[3] + 15;
+            }
+            newField              = this.addField(newFieldName, fieldType, page, fieldRectangle);
+            newField.userName     = fieldConfigs[x].userName;
+            newField.value        = fieldConfigs[x].value;
+            newField.page         = fieldConfigs[x].page;
+            if (fieldType == 'text'){
+                newField.defaultValue = fieldConfigs[x].defaultValue;
+                newField.customField  = true;
+                newField.rotation     = 0; 
+                newField.textSize     = 0;
+                newField.readonly     = false;
+                newField.textFont     = "Helvetica-Bold";
+                newField.comb         = fieldConfigs[x].comb;
+                newField.charLimit    = fieldConfigs[x].charLimit;
+            } 
+            if (fieldType == 'checkbox'){
+                newField.style       = fieldConfigs[x].style;
+                newField.fillcolor   = fieldConfigs[x].fillColor;
+                newField.strokeColor = fieldConfigs[x].strokeColor;
+                newField.checkThisBox(0,fieldConfigs[x].isChecked);
+                newField.defaultIsChecked(0,fieldConfigs[x].isDefault);
+            }
+         } else {
+            for (var j = 0; j < fieldConfigs[x].page.length; j++) {
+                con.log(fieldConfigs[x].name)
+            }
+         }
     }
 
 }
@@ -201,9 +210,48 @@ function findClonedCustomFields(overDriveCodes){
                     newField            = this.addField(newFieldName, fieldType, page, fieldRectangle);
                     newField.horizontal = repeatedField.rect[0] * (-1);
                     newField.vertical   = repeatedField.rect[1];
+                    newField.comb       = repeatedField.comb;
+                    newField.charLimit  = repeatedField.charLimit;
                 }
                 this.removeField(fieldName);
             }
         }
     }
+}
+
+function getDatePart(part,dateString){
+    var temp, d, datePart = "";
+    d = new Date(dateString);
+    if (d == "Invalid Date"){
+        datePart = "";
+    } else {
+
+        if (part.toUpperCase() == "MM"){
+            temp = d.getMonth() + 1;
+            datePart = ("0" + temp).slice(-2);
+        }
+
+        if (part.toUpperCase() == "DD"){
+            temp = d.getDate();
+            datePart = ("0" + temp).slice(-2);
+        }
+
+        if (part.toUpperCase() == "YYYY"){
+            datePart = d.getFullYear();
+        }
+
+        if (part.toUpperCase() == "YY"){
+            datePart = d.getYear();
+        }
+
+        if (part.toUpperCase() == "FULLNAME"){
+            datePart = monthNames[d.getMonth()].fullName;
+        }
+
+        if (part.toUpperCase() == "SHORTNAME"){
+            datePart = monthNames[d.getMonth()].shortName;
+        }
+
+    }
+    return datePart;
 }

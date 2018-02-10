@@ -9,3 +9,54 @@ txtGetFormID = {
 txtDialogPrompts = {
 	checkBoxTooltip : 'Click to check/uncheck this box'
 }
+
+var monthNames = [
+	{
+    	"fullName": "January",
+		"shortName":"JAN"
+    },
+    {
+    	"fullName": "February",
+		"shortName":"FEB"
+    },
+	{
+    	"fullName": "March",
+		"shortName":"MAR"
+    },
+    {
+    	"fullName": "April",
+		"shortName":"APR"
+    },
+	{
+    	"fullName": "May",
+		"shortName":"MAY"
+    },
+    {
+    	"fullName": "June",
+		"shortName":"JUN"
+    },
+    {
+        "fullName": "July",
+        "shortName":"JUL"
+    },
+    {
+        "fullName": "August",
+        "shortName":"AUG"
+    },
+    {
+        "fullName": "September",
+        "shortName":"SEP"
+    },
+    {
+        "fullName": "October",
+        "shortName":"OCT"
+    },
+    {
+        "fullName": "November",
+        "shortName":"NOV"
+    },
+    {
+        "fullName": "December",
+        "shortName":"DEC"
+    }
+];

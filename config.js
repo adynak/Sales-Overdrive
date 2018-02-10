@@ -1,8 +1,34 @@
-app.addSubMenu({ cName: "Sales Over&Drive", cParent: "Help", nPos: 99 })
+app.addSubMenu(
+    { 
+        cName: "Sales Over&Drive", 
+        cParent: "Help", 
+        nPos: 99
+    }
+);
 
-app.addMenuItem({cName:"&JS Ref", cParent:"View", cExec:"app.openDoc('/C/Users/dynaka/Documents/Laser Tools/js_api_reference.pdf');" });
-app.addMenuItem({cName:"Update &Form Fields", cParent:"Sales Over&Drive", cExec:"populateOverdriveFields();" });
-app.addMenuItem({cName:"&Clear Test Values", cParent:"Sales Over&Drive", cExec:"clearFieldSampleValues();" });
+app.addMenuItem(
+    {
+        cName:"&JS Ref", 
+        cParent:"View", 
+        cExec:"app.openDoc('/C/Users/dynaka/Documents/Laser Tools/js_api_reference.pdf');"
+    }
+);
+
+app.addMenuItem(
+    {
+        cName:"Update &Form Fields", 
+        cParent:"Sales Over&Drive", 
+        cExec:"populateOverdriveFields();"
+    }
+);
+
+app.addMenuItem(
+    {
+        cName:"&Clear Test Values", 
+        cParent:"Sales Over&Drive", 
+        cExec:"clearFieldSampleValues();"
+    }
+);
 
 // Functions
 
@@ -116,7 +142,7 @@ function populateOverdriveFields() {
     var fieldNameArray;
     var repeatedField;
 
-    var jsonFilename   = "/C/Users/dynaka/Documents/Lasert~1/availableFields.json";
+    var jsonFilename   = "/C/Progra~2/Adobe/Acroba~2/Acrobat/Javascripts/availablefields.json";
     var jsonStream     = util.readFileIntoStream(jsonFilename);
     var jsonString     = util.stringFromStream(jsonStream);
     var overDriveCodes = eval(jsonString);
